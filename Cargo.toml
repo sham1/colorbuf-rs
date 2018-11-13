@@ -1,0 +1,8 @@
+[package]
+name = "colorbuf"
+version = "0.1.0"
+authors = ["jani"]
+edition = "2018"
+license = "MIT"
+
+[dependencies]
