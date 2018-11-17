@@ -186,7 +186,7 @@ impl BitmapColorBuf {
     }
 
     fn get_offset(&self, x: u64, y: u64) -> usize {
-        (get_bpp_factor(&self.format, &self.depth) * (y * self.stride + x)) as usize
+        (y * self.stride + (get_bpp_factor(&self.format, &self.depth) * x)) as usize
     }
 }
 
@@ -243,7 +243,7 @@ pub fn to_bitmap<'a, B>(buf: B,
     for y in 0..buf.get_height() {
         for x in 0..buf.get_width() {
             let color: Color = buf.get_pixel(x, y).unwrap();
-            let index: usize = (get_bpp_factor(&format, &depth) * (y * (* stride) + x)) as usize;
+            let index: usize = ((y * (* stride) + (get_bpp_factor(&format, &depth) * x))) as usize;
 
             match depth {
                 BitDepth::Eight => {
@@ -320,5 +320,21 @@ mod tests {
 
         assert_eq!(8, stride);
         assert_eq!(expected_bitmap, new_bitmap);
+    }
+
+    #[test]
+    fn two_line_roundtrip() {
+        // RGBA. 2x2 image with first pixel being red, second green, third blue, and fourth white
+        let orig_bitmap = [0xFF, 0x00, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF,
+                           0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF ];
+        let colorbuf = BitmapColorBuf::new(ColorFormat::RGBA, BitDepth::Eight,
+                                           2, 2, 8, Box::new(orig_bitmap.clone()));
+        let mut new_bitmap: [u8; 16] = [0x00u8; 16];
+        let mut stride = 0;
+        to_bitmap(colorbuf, ColorFormat::RGBA, BitDepth::Eight, &mut stride, &mut new_bitmap)
+            .unwrap();
+
+        assert_eq!(8, stride);
+        assert_eq!(orig_bitmap, new_bitmap);
     }
 }
