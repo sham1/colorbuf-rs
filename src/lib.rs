@@ -15,12 +15,11 @@ use std::result::Result;
 #[derive(Debug, PartialEq)]
 pub enum ColorBufError {
     InvalidCoordinate,
-    InvalidDimensions
+    InvalidDimensions,
 }
 
 /// 2D manipulatable region of pixels.
 pub trait ColorBuf {
-
     /// Gets the color at a given pixel position.
     ///
     /// The `x` and `y` must not go outside of their bounds
@@ -52,7 +51,29 @@ pub struct Color {
     /// The blue color channel. Values range from 0 to 1.
     pub b: f32,
     /// The alpha channel. Values range from 0 to 1.
-    pub a: f32
+    pub a: f32,
+}
+
+impl Color {
+    /// Blends `src` to this color with gamma correcion.
+    ///
+    /// NOTE: `gamma` is usually `2.2f32`.
+    pub fn blend_with_gamma(self, src: Color, gamma: f32) -> Color {
+        let out_a = src.a + self.a * (1f32 - src.a);
+        let out_r = ((src.r).powf(gamma) * src.a + (self.r).powf(gamma) * (1f32 - src.a))
+            .powf(1f32 / gamma);
+        let out_g = ((src.g).powf(gamma) * src.a + (self.g).powf(gamma) * (1f32 - src.a))
+            .powf(1f32 / gamma);
+        let out_b = ((src.b).powf(gamma) * src.a + (self.b).powf(gamma) * (1f32 - src.a))
+            .powf(1f32 / gamma);
+
+        Color {
+            r: out_r,
+            g: out_g,
+            b: out_b,
+            a: out_a,
+        }
+    }
 }
 
 pub mod bitmap;

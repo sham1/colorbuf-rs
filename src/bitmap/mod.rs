@@ -7,7 +7,7 @@
 //!
 //! [`ColorBuf`]: ../trait.ColorBuf.html
 
-use crate::{ColorBuf, Color, ColorBufError};
+use crate::{Color, ColorBuf, ColorBufError};
 use std::result::Result;
 
 /// Tells the [`BitmapColorBuf`] how the colors are arranged within the bitmap.
@@ -26,7 +26,7 @@ pub enum ColorFormat {
 ///
 /// [`BitmapColorBuf`]: struct.BitmapColorBuf.html
 pub enum BitDepth {
-    Eight
+    Eight,
 }
 
 pub struct BitmapColorBuf {
@@ -36,7 +36,7 @@ pub struct BitmapColorBuf {
 
     rows: u64,
     pixels_per_row: u64,
-    stride: u64
+    stride: u64,
 }
 
 impl ColorBuf for BitmapColorBuf {
@@ -51,39 +51,38 @@ impl ColorBuf for BitmapColorBuf {
         let a: f32;
 
         match self.format {
-            ColorFormat::RGBA => {
-                match self.depth {
-                    BitDepth::Eight => {
-                        r = (self.data[index] as f32) / 255f32;
-                        g = (self.data[index + 1] as f32) / 255f32;
-                        b = (self.data[index + 2] as f32) / 255f32;
-                        a = (self.data[index + 3] as f32) / 255f32;
-                    }
+            ColorFormat::RGBA => match self.depth {
+                BitDepth::Eight => {
+                    r = (self.data[index] as f32) / 255f32;
+                    g = (self.data[index + 1] as f32) / 255f32;
+                    b = (self.data[index + 2] as f32) / 255f32;
+                    a = (self.data[index + 3] as f32) / 255f32;
                 }
             },
-            ColorFormat::ARGB => {
-                match self.depth {
-                    BitDepth::Eight => {
-                        a = (self.data[index] as f32) / 255f32;
-                        r = (self.data[index + 1] as f32) / 255f32;
-                        g = (self.data[index + 2] as f32) / 255f32;
-                        b = (self.data[index + 3] as f32) / 255f32;
-                    }
+            ColorFormat::ARGB => match self.depth {
+                BitDepth::Eight => {
+                    a = (self.data[index] as f32) / 255f32;
+                    r = (self.data[index + 1] as f32) / 255f32;
+                    g = (self.data[index + 2] as f32) / 255f32;
+                    b = (self.data[index + 3] as f32) / 255f32;
                 }
             },
-            ColorFormat::RGB => {
-                match self.depth {
-                    BitDepth::Eight => {
-                        r = (self.data[index] as f32) / 255f32;
-                        g = (self.data[index + 1] as f32) / 255f32;
-                        b = (self.data[index + 2] as f32) / 255f32;
-                        a = 1.0f32;
-                    }
+            ColorFormat::RGB => match self.depth {
+                BitDepth::Eight => {
+                    r = (self.data[index] as f32) / 255f32;
+                    g = (self.data[index + 1] as f32) / 255f32;
+                    b = (self.data[index + 2] as f32) / 255f32;
+                    a = 1.0f32;
                 }
-            }
+            },
         }
 
-        Ok(Color { r: r, g: g, b: b, a: a })
+        Ok(Color {
+            r: r,
+            g: g,
+            b: b,
+            a: a,
+        })
     }
 
     fn set_pixel(&mut self, x: u64, y: u64, color: &Color) -> Result<(), ColorBufError> {
@@ -97,53 +96,47 @@ impl ColorBuf for BitmapColorBuf {
         // XXX: Is this reasonable?
 
         match self.format {
-            ColorFormat::RGBA => {
-                match self.depth {
-                    BitDepth::Eight => {
-                        let r_byte = (color.r * 255f32) as u8;
-                        let g_byte = (color.g * 255f32) as u8;
-                        let b_byte = (color.b * 255f32) as u8;
-                        let a_byte = (color.a * 255f32) as u8;
+            ColorFormat::RGBA => match self.depth {
+                BitDepth::Eight => {
+                    let r_byte = (color.r * 255f32) as u8;
+                    let g_byte = (color.g * 255f32) as u8;
+                    let b_byte = (color.b * 255f32) as u8;
+                    let a_byte = (color.a * 255f32) as u8;
 
-                        self.data[index] = r_byte;
-                        self.data[index + 1] = g_byte;
-                        self.data[index + 2] = b_byte;
-                        self.data[index + 3] = a_byte;
-                    }
+                    self.data[index] = r_byte;
+                    self.data[index + 1] = g_byte;
+                    self.data[index + 2] = b_byte;
+                    self.data[index + 3] = a_byte;
                 }
             },
-            ColorFormat::ARGB => {
-                match self.depth {
-                    BitDepth::Eight => {
-                        let r_byte = (color.r * 255f32) as u8;
-                        let g_byte = (color.g * 255f32) as u8;
-                        let b_byte = (color.b * 255f32) as u8;
-                        let a_byte = (color.a * 255f32) as u8;
+            ColorFormat::ARGB => match self.depth {
+                BitDepth::Eight => {
+                    let r_byte = (color.r * 255f32) as u8;
+                    let g_byte = (color.g * 255f32) as u8;
+                    let b_byte = (color.b * 255f32) as u8;
+                    let a_byte = (color.a * 255f32) as u8;
 
-                        self.data[index] = a_byte;
-                        self.data[index + 1] = r_byte;
-                        self.data[index + 2] = g_byte;
-                        self.data[index + 3] = b_byte;
-                    }
+                    self.data[index] = a_byte;
+                    self.data[index + 1] = r_byte;
+                    self.data[index + 2] = g_byte;
+                    self.data[index + 3] = b_byte;
                 }
             },
-            ColorFormat::RGB => {
-                match self.depth {
-                    BitDepth::Eight => {
-                        let r = color.r / color.a;
-                        let g = color.g / color.a;
-                        let b = color.b / color.a;
+            ColorFormat::RGB => match self.depth {
+                BitDepth::Eight => {
+                    let r = color.r / color.a;
+                    let g = color.g / color.a;
+                    let b = color.b / color.a;
 
-                        let r_byte = (r * 255f32) as u8;
-                        let g_byte = (g * 255f32) as u8;
-                        let b_byte = (b * 255f32) as u8;
+                    let r_byte = (r * 255f32) as u8;
+                    let g_byte = (g * 255f32) as u8;
+                    let b_byte = (b * 255f32) as u8;
 
-                        self.data[index] = r_byte;
-                        self.data[index + 1] = g_byte;
-                        self.data[index + 2] = b_byte;
-                    }
+                    self.data[index] = r_byte;
+                    self.data[index + 1] = g_byte;
+                    self.data[index + 2] = b_byte;
                 }
-            }
+            },
         }
         Ok(())
     }
@@ -169,19 +162,21 @@ impl BitmapColorBuf {
     /// * `stride` - How many bytes are between rows? For tightly packed bitmaps (i.e. no padding),
     /// this is the same as `pixels_per_row`.
     /// * `data` - The bitmap image.
-    pub fn new(format: ColorFormat,
-               depth: BitDepth,
-               rows: u64,
-               pixels_per_row: u64,
-               stride: u64,
-               data: Box<[u8]>) -> BitmapColorBuf {
+    pub fn new(
+        format: ColorFormat,
+        depth: BitDepth,
+        rows: u64,
+        pixels_per_row: u64,
+        stride: u64,
+        data: Box<[u8]>,
+    ) -> BitmapColorBuf {
         BitmapColorBuf {
             data,
             format,
             depth,
             rows,
             pixels_per_row,
-            stride
+            stride,
         }
     }
 
@@ -196,10 +191,10 @@ fn get_bpp_factor(format: &ColorFormat, _depth: &BitDepth) -> u64 {
     match &format {
         ColorFormat::RGBA => {
             ret = 4;
-        },
+        }
         ColorFormat::ARGB => {
             ret = 4;
-        },
+        }
         ColorFormat::RGB => {
             ret = 3;
         }
@@ -210,7 +205,7 @@ fn get_bpp_factor(format: &ColorFormat, _depth: &BitDepth) -> u64 {
 
 #[derive(Debug, PartialEq)]
 pub enum BitmapError {
-    ByteArrayTooSmall
+    ByteArrayTooSmall,
 }
 
 /// Writes the given [`ColorBuf`] to a bitmap
@@ -223,13 +218,15 @@ pub enum BitmapError {
 /// by the consumer of the resulting bitmap.
 ///
 /// Using the `output` if this function failed is a programmer error.
-pub fn to_bitmap<'a, B>(buf: B,
-                        format: ColorFormat,
-                        depth: BitDepth,
-                        stride: &mut u64,
-                        output: &'a mut [u8]) -> std::result::Result<(), BitmapError>
-    where
-        B: ColorBuf
+pub fn to_bitmap<'a, B>(
+    buf: B,
+    format: ColorFormat,
+    depth: BitDepth,
+    stride: &mut u64,
+    output: &'a mut [u8],
+) -> std::result::Result<(), BitmapError>
+where
+    B: ColorBuf,
 {
     // We often want this stuff to be aligned at 32-bit boundary.
     // FIXME: Do this better
@@ -243,7 +240,7 @@ pub fn to_bitmap<'a, B>(buf: B,
     for y in 0..buf.get_height() {
         for x in 0..buf.get_width() {
             let color: Color = buf.get_pixel(x, y).unwrap();
-            let index: usize = ((y * (* stride) + (get_bpp_factor(&format, &depth) * x))) as usize;
+            let index: usize = (y * (*stride) + (get_bpp_factor(&format, &depth) * x)) as usize;
 
             match depth {
                 BitDepth::Eight => {
@@ -255,20 +252,20 @@ pub fn to_bitmap<'a, B>(buf: B,
                     match format {
                         ColorFormat::RGBA => {
                             output[index] = r_byte;
-                            output[index+1] = g_byte;
-                            output[index+2] = b_byte;
-                            output[index+3] = a_byte;
-                        },
+                            output[index + 1] = g_byte;
+                            output[index + 2] = b_byte;
+                            output[index + 3] = a_byte;
+                        }
                         ColorFormat::ARGB => {
                             output[index] = a_byte;
-                            output[index+1] = r_byte;
-                            output[index+2] = g_byte;
-                            output[index+3] = b_byte;
-                        },
+                            output[index + 1] = r_byte;
+                            output[index + 2] = g_byte;
+                            output[index + 3] = b_byte;
+                        }
                         ColorFormat::RGB => {
                             output[index] = r_byte;
-                            output[index+1] = g_byte;
-                            output[index+2] = b_byte;
+                            output[index + 1] = g_byte;
+                            output[index + 2] = b_byte;
                         }
                     }
                 }
@@ -285,15 +282,26 @@ mod tests {
     #[test]
     fn roundtrip() {
         // RGBA. First pixel is white, and second red
-        let orig_bitmap = [0xFF, 0xFF, 0xFF, 0xFF,
-                           0xFF, 0x00, 0x00, 0xFF ];
+        let orig_bitmap = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0xFF];
 
-        let colorbuf = BitmapColorBuf::new(ColorFormat::RGBA, BitDepth::Eight,
-                                           1, 2, 8, Box::new(orig_bitmap.clone()));
+        let colorbuf = BitmapColorBuf::new(
+            ColorFormat::RGBA,
+            BitDepth::Eight,
+            1,
+            2,
+            8,
+            Box::new(orig_bitmap.clone()),
+        );
         let mut new_bitmap: [u8; 8] = [0, 0, 0, 0, 0, 0, 0, 0];
         let mut stride: u64 = 0;
-        to_bitmap(colorbuf, ColorFormat::RGBA, BitDepth::Eight, &mut stride, &mut new_bitmap)
-            .unwrap();
+        to_bitmap(
+            colorbuf,
+            ColorFormat::RGBA,
+            BitDepth::Eight,
+            &mut stride,
+            &mut new_bitmap,
+        )
+        .unwrap();
 
         assert_eq!(8, stride);
         assert_eq!(orig_bitmap, new_bitmap);
@@ -302,21 +310,42 @@ mod tests {
     #[test]
     fn modification() {
         // RGBA. First pixel is white, and second red
-        let orig_bitmap = [0xFF, 0xFF, 0xFF, 0xFF,
-                           0xFF, 0x00, 0x00, 0xFF ];
+        let orig_bitmap = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0xFF];
 
         // RGBA. We try to make the first pixel blue instead of white
-        let expected_bitmap = [0x00, 0x00, 0xFF, 0xFF,
-                               0xFF, 0x00, 0x00, 0xFF ];
+        let expected_bitmap = [0x00, 0x00, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0xFF];
 
-        let mut colorbuf = BitmapColorBuf::new(ColorFormat::RGBA, BitDepth::Eight,
-                                               1, 2, 8, Box::new(orig_bitmap));
-        colorbuf.set_pixel(0, 0, &Color {r: 0f32, g: 0f32, b: 1f32, a: 1f32}).unwrap();
+        let mut colorbuf = BitmapColorBuf::new(
+            ColorFormat::RGBA,
+            BitDepth::Eight,
+            1,
+            2,
+            8,
+            Box::new(orig_bitmap),
+        );
+        colorbuf
+            .set_pixel(
+                0,
+                0,
+                &Color {
+                    r: 0f32,
+                    g: 0f32,
+                    b: 1f32,
+                    a: 1f32,
+                },
+            )
+            .unwrap();
 
         let mut new_bitmap: [u8; 8] = [0; 8];
         let mut stride = 0;
-        to_bitmap(colorbuf, ColorFormat::RGBA, BitDepth::Eight, &mut stride, &mut new_bitmap)
-            .unwrap();
+        to_bitmap(
+            colorbuf,
+            ColorFormat::RGBA,
+            BitDepth::Eight,
+            &mut stride,
+            &mut new_bitmap,
+        )
+        .unwrap();
 
         assert_eq!(8, stride);
         assert_eq!(expected_bitmap, new_bitmap);
@@ -325,14 +354,28 @@ mod tests {
     #[test]
     fn two_line_roundtrip() {
         // RGBA. 2x2 image with first pixel being red, second green, third blue, and fourth white
-        let orig_bitmap = [0xFF, 0x00, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF,
-                           0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF ];
-        let colorbuf = BitmapColorBuf::new(ColorFormat::RGBA, BitDepth::Eight,
-                                           2, 2, 8, Box::new(orig_bitmap.clone()));
+        let orig_bitmap = [
+            0xFF, 0x00, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFF,
+        ];
+        let colorbuf = BitmapColorBuf::new(
+            ColorFormat::RGBA,
+            BitDepth::Eight,
+            2,
+            2,
+            8,
+            Box::new(orig_bitmap.clone()),
+        );
         let mut new_bitmap: [u8; 16] = [0x00u8; 16];
         let mut stride = 0;
-        to_bitmap(colorbuf, ColorFormat::RGBA, BitDepth::Eight, &mut stride, &mut new_bitmap)
-            .unwrap();
+        to_bitmap(
+            colorbuf,
+            ColorFormat::RGBA,
+            BitDepth::Eight,
+            &mut stride,
+            &mut new_bitmap,
+        )
+        .unwrap();
 
         assert_eq!(8, stride);
         assert_eq!(orig_bitmap, new_bitmap);

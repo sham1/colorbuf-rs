@@ -16,33 +16,44 @@ type Result<T> = std::result::Result<T, ColorBufError>;
 ///
 /// [`ColorBuf`]: ../stuct.ColorBuf.html
 pub struct SubRegionColorBuf<'a, B>
-    where B: 'a + ColorBuf
+where
+    B: 'a + ColorBuf,
 {
     backing: &'a mut B,
     reg_x: u64,
     reg_y: u64,
 
     width: u64,
-    height: u64
+    height: u64,
 }
 
-impl <'a, B> SubRegionColorBuf<'a, B>
-    where B: 'a + ColorBuf
+impl<'a, B> SubRegionColorBuf<'a, B>
+where
+    B: 'a + ColorBuf,
 {
-    pub fn new(backing: &'a mut B,
-               start_x: u64,
-               start_y: u64,
-               width: u64,
-               height: u64) -> Result<SubRegionColorBuf<'a, B>> {
+    pub fn new(
+        backing: &'a mut B,
+        start_x: u64,
+        start_y: u64,
+        width: u64,
+        height: u64,
+    ) -> Result<SubRegionColorBuf<'a, B>> {
         if (start_x + width) >= backing.get_width() || (start_y + height) >= backing.get_height() {
             return Err(ColorBufError::InvalidDimensions);
         }
-        Ok(SubRegionColorBuf { backing, reg_x: start_x, reg_y: start_y, width, height })
+        Ok(SubRegionColorBuf {
+            backing,
+            reg_x: start_x,
+            reg_y: start_y,
+            width,
+            height,
+        })
     }
 }
 
-impl <'a, B> ColorBuf for SubRegionColorBuf<'a, B>
-    where B: 'a + ColorBuf
+impl<'a, B> ColorBuf for SubRegionColorBuf<'a, B>
+where
+    B: 'a + ColorBuf,
 {
     fn get_pixel(&self, x: u64, y: u64) -> Result<Color> {
         if x >= self.width || y >= self.height {
@@ -55,7 +66,8 @@ impl <'a, B> ColorBuf for SubRegionColorBuf<'a, B>
         if x >= self.width || y >= self.height {
             return Err(ColorBufError::InvalidCoordinate);
         }
-        self.backing.set_pixel(self.reg_x + x, self.reg_y + y, color)
+        self.backing
+            .set_pixel(self.reg_x + x, self.reg_y + y, color)
     }
 
     fn get_width(&self) -> u64 {
